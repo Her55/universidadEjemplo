@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.mariadb.jdbc.Statement;
@@ -24,6 +25,7 @@ public class AlumnoData {
     public AlumnoData(Conexion conexion) {
         this.conexion = conexion.establecerConexion();
     }
+    Scanner lectura = new Scanner (System.in);
 
     public void guardarAlumno(Alumno a) {
         try {
@@ -79,17 +81,22 @@ public class AlumnoData {
         return a;    
     } 
     
-     public void actualizar(Alumno a){
+     public String actualizarPorDni(int dni){
+         Alumno a=new Alumno();
          try {
             //agregar un alumno
-            String query = "UPDATE alumno SET dni=?,apellido=?,nombre=?,fecha_nacimiento=?,estado=? WHERE 1";
+            String query = "UPDATE alumno SET apellido=?,nombre=?,fecha_nacimiento=?,estado=? WHERE dni=?";
             //armar sentencia de sql
             PreparedStatement ps = conexion.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-            ps.setInt(1, a.getDni());
-            ps.setString(2, a.getApellido());
-            ps.setString(3, a.getNombre());
-            ps.setString(4, a.getFechaNacimiento());
-            ps.setBoolean(5, a.isEstado());
+            ps.setInt(6, dni);
+            System.out.println("Ingrese el apellido: ");             
+            ps.setString(1, lectura.next());
+             System.out.println("Ingrese el nombre: ");
+            ps.setString(2, lectura.next());
+             System.out.println("Ingrese la fecha de nacimiento: ");
+            ps.setString(3, lectura.next());
+             System.out.println("ingrese el estado: ");
+            ps.setBoolean(4, lectura.nextBoolean());
             //ejecutar query executeUpdate devuelve un entero
             ps.executeUpdate(); 
             //recupero el registro y lo asigno a la clase alumno 
@@ -97,13 +104,31 @@ public class AlumnoData {
             if(rs.next())
                 a.setId(rs.getInt(1));
             else
-                System.out.println("No se pudo guardar");
+                System.out.println("No se pudo actualizar");
             ps.close();
-            System.out.println("Guardado");
+            System.out.println("Actualizado");
         } catch (SQLException ex) {
             Logger.getLogger(AlumnoData.class.getName()).log(Level.SEVERE, null, ex);
         }
+         return a.toString();
      }
     
+     public void EliminarPorDni(int dni){         
+         try {
+            //agregar un alumno
+            String query = "DELETE FROM `alumno` WHERE dni=?";
+            //armar sentencia de sql
+            PreparedStatement ps = conexion.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);   
+            ps.setInt(1, dni);
+            //ejecutar query executeUpdate devuelve un entero
+            ps.executeUpdate(); 
+            //recupero el registro y lo asigno a la clase alumno 
+            ResultSet rs = ps.getGeneratedKeys();
+            ps.close();
+            System.out.println("Eliminado");
+        } catch (SQLException ex) {
+            Logger.getLogger(AlumnoData.class.getName()).log(Level.SEVERE, null, ex);
+        }         
+     }
     
 }

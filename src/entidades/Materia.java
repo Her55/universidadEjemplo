@@ -10,6 +10,9 @@ public class Materia {
     private int anio; 
     private boolean estado;
 
+    public Materia() {
+    }
+
     public Materia(int id, String nombre, int anio, boolean estado) {
         this.id = id;
         this.nombre = nombre;
